@@ -9,15 +9,15 @@ app.get("/", (req, res) => {
   res.send("AI Backend is running");
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
-});
-
 app.get("/health", (req, res) => {
   res.json({
     status: "ok",
     supabase: !!process.env.SUPABASE_URL,
     openai: !!process.env.OPENAI_API_KEY
   });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
 });
