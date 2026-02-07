@@ -1,57 +1,31 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 10000;
 
-/* middleware */
 app.use(cors());
 app.use(express.json());
 
-/* ROOT TEST */
+// ROOT ROUTE
 app.get("/", (req, res) => {
-  res.send("AI Backend is running");
+  res.status(200).send("AI Backend is running");
 });
 
-/* HEALTH CHECK */
+// HEALTH CHECK
 app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
+  res.status(200).json({ status: "ok" });
 });
 
-/* GENERATE SITE (TEMP RESPONSE) */
+// TEST GENERATE API
 app.post("/generate-site", async (req, res) => {
-  try {
-    const {
-      customer_id,
-      business_name,
-      business_description,
-      industry,
-      location,
-    } = req.body;
-
-    if (!customer_id || !business_name) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    return res.json({
-      success: true,
-      message: "Generate site API working",
-      data: {
-        business_name,
-        industry,
-        location,
-      },
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
+  return res.status(200).json({
+    success: true,
+    message: "Generate site API working"
+  });
 });
 
-/* START SERVER */
-app.listen(PORT, () => {
+// IMPORTANT: LISTEN
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
