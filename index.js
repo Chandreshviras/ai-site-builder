@@ -18,69 +18,77 @@ app.get("/health", (req, res) => {
 
 // TEST GENERATE API
 app.post("/generate-site", async (req, res) => {
-  return res.status(200).json({
-    success: true,
-    message: "Generate site API working"
-  });
-});
-
-app.get("/site/:id", async (req, res) => {
   try {
-    const { id } = req.params;
+    const {
+      customer_id,
+      business_name,
+      business_description,
+      industry,
+      location,
+    } = req.body;
+
+    console.log("Incoming payload:", req.body);
+
+    if (!customer_id || !business_name) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const prompt = `
+Create a website structure in JSON.
+Business: ${business_name}
+Description: ${business_description}
+Industry: ${industry}
+Location: ${location}
+
+Return JSON ONLY:
+{
+  "theme": { "primary": "#000", "secondary": "#fff" },
+  "pages": [
+    {
+      "slug": "home",
+      "sections": [
+        { "type": "hero", "heading": "...", "text": "..." },
+        { "type": "services", "items": ["Service 1", "Service 2"] },
+        { "type": "contact", "email": "info@example.com" }
+      ]
+    }
+  ]
+}
+`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const siteJson = JSON.parse(
+      completion.choices[0].message.content
+    );
 
     const { data, error } = await supabase
       .from("sites")
-      .select("*")
-      .eq("id", id)
-      .single();
+      .insert([
+        {
+          customer_id,
+          name: business_name,
+          json: siteJson,
+          status: "live",
+        },
+      ])
+      .select();
 
-    if (error || !data) {
-      return res.status(404).send("Site not found");
+    if (error) {
+      console.error("SUPABASE INSERT ERROR:", error);
+      return res.status(500).json({ error });
     }
 
-    if (data.status !== "live") {
-      return res.send("<h1>Site Under Maintenance</h1>");
-    }
-
-    const site = data.json;
-
-    let html = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>${data.name}</title>
-        <style>
-          body { font-family: Arial; padding: 40px; }
-          h1 { color: ${site.theme.primary}; }
-        </style>
-      </head>
-      <body>
-    `;
-
-    site.pages[0].sections.forEach((section) => {
-      if (section.type === "hero") {
-        html += `<h1>${section.heading}</h1><p>${section.text}</p>`;
-      }
-
-      if (section.type === "services") {
-        html += "<ul>";
-        section.items.forEach((item) => {
-          html += `<li>${item}</li>`;
-        });
-        html += "</ul>";
-      }
-
-      if (section.type === "contact") {
-        html += `<p>Contact: ${section.email}</p>`;
-      }
+    res.json({
+      success: true,
+      inserted: data,
     });
-
-    html += "</body></html>";
-
-    res.send(html);
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Render error");
+    console.error("API ERROR:", err);
+    res.status(500).json({ error: err.message });
   }
 });
 
