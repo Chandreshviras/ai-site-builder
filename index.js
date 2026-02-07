@@ -1,45 +1,27 @@
 import express from "express";
 import cors from "cors";
-import OpenAI from "openai";
-import { createClient } from "@supabase/supabase-js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 10000;
+
+/* middleware */
 app.use(cors());
 app.use(express.json());
 
-/* =========================
-   ENV
-========================= */
-const PORT = process.env.PORT || 10000;
-
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-/* =========================
-   CLIENTS
-========================= */
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
-
-const supabase = createClient(
-  SUPABASE_URL,
-  SUPABASE_SERVICE_ROLE_KEY
-);
-
-/* =========================
-   HEALTH
-========================= */
+/* ROOT TEST */
 app.get("/", (req, res) => {
   res.send("AI Backend is running");
 });
 
+/* HEALTH CHECK */
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-/* =========================
-   STEP 6 — GENERATE SITE
-========================= */
+/* GENERATE SITE (TEMP RESPONSE) */
 app.post("/generate-site", async (req, res) => {
   try {
     const {
@@ -54,76 +36,22 @@ app.post("/generate-site", async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const prompt = `
-You are an expert AI website builder.
-
-Create a professional business website in JSON.
-
-Business Name: ${business_name}
-Description: ${business_description}
-Industry: ${industry}
-Location: ${location}
-
-Return ONLY valid JSON in this format:
-
-{
-  "theme": { "primary": "#111111" },
-  "pages": [
-    {
-      "slug": "home",
-      "sections": [
-        { "type": "hero", "heading": "", "subheading": "" },
-        { "type": "services", "items": [] },
-        { "type": "contact", "email": "", "phone": "" }
-      ]
-    }
-  ]
-}
-`;
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.7,
-    });
-
-    const siteJson = JSON.parse(
-      completion.choices[0].message.content
-    );
-
-    const { data, error } = await supabase
-      .from("sites")
-      .insert([
-        {
-          customer_id,
-          name: business_name,
-          json: siteJson,
-          status: "live",
-        },
-      ])
-      .select()
-      .single();
-
-    if (error) {
-      console.error(error);
-      return res.status(500).json({ error: "Database insert failed" });
-    }
-
-    res.json({
+    return res.json({
       success: true,
-      site_id: data.id,
-      site_json: siteJson,
+      message: "Generate site API working",
+      data: {
+        business_name,
+        industry,
+        location,
+      },
     });
-
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "AI generation failed" });
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-/* =========================
-   START
-========================= */
+/* START SERVER */
 app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+  console.log(`Server running on port ${PORT}`);
 });
