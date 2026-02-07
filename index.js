@@ -1,22 +1,37 @@
 import express from "express";
 import cors from "cors";
+import dotenv from "dotenv";
+import OpenAI from "openai";
+import { createClient } from "@supabase/supabase-js";
+
+dotenv.config();
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
-// ROOT ROUTE
+// 🔹 INIT SUPABASE
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
+
+// 🔹 INIT OPENAI (THIS WAS MISSING ❗)
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+// ✅ ROOT
 app.get("/", (req, res) => {
-  res.status(200).send("AI Backend is running");
+  res.send("AI Backend is running");
 });
 
-// HEALTH CHECK
+// ✅ HEALTH
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok" });
+  res.json({ status: "ok" });
 });
 
-// TEST GENERATE API
+// 🔥 GENERATE SITE API
 app.post("/generate-site", async (req, res) => {
   try {
     const {
@@ -27,20 +42,19 @@ app.post("/generate-site", async (req, res) => {
       location,
     } = req.body;
 
-    console.log("Incoming payload:", req.body);
-
     if (!customer_id || !business_name) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
     const prompt = `
 Create a website structure in JSON.
+
 Business: ${business_name}
 Description: ${business_description}
 Industry: ${industry}
 Location: ${location}
 
-Return JSON ONLY:
+Return JSON ONLY in this format:
 {
   "theme": { "primary": "#000", "secondary": "#fff" },
   "pages": [
@@ -78,13 +92,13 @@ Return JSON ONLY:
       .select();
 
     if (error) {
-      console.error("SUPABASE INSERT ERROR:", error);
+      console.error("SUPABASE ERROR:", error);
       return res.status(500).json({ error });
     }
 
     res.json({
       success: true,
-      inserted: data,
+      site: data[0],
     });
   } catch (err) {
     console.error("API ERROR:", err);
@@ -92,9 +106,8 @@ Return JSON ONLY:
   }
 });
 
-
-// IMPORTANT: LISTEN
+// 🚀 START SERVER
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () =>
+  console.log("Server running on port", PORT)
+);
