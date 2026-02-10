@@ -9,11 +9,18 @@ const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ Serve static files (CSS, images, JS)
+// ✅ Serve static files (CSS must be here)
 app.use(express.static(path.join(__dirname, "public")));
 
-// Home page
+// Home (root)
 app.get("/", (req, res) => {
+  res.redirect("/site/demo/home");
+});
+
+// ✅ Dynamic site home route (THIS fixes your error)
+app.get("/site/:siteId/home", (req, res) => {
+  const { siteId } = req.params;
+
   res.send(`
     <!DOCTYPE html>
     <html lang="en">
@@ -22,7 +29,7 @@ app.get("/", (req, res) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>Eminent Website Solutions</title>
 
-      <!-- ✅ CSS MUST be absolute path -->
+      <!-- IMPORTANT: absolute path -->
       <link rel="stylesheet" href="/style.css" />
     </head>
     <body class="light">
@@ -31,14 +38,16 @@ app.get("/", (req, res) => {
         <p>Web design & digital marketing agency</p>
 
         <nav>
-          <a href="/">Home</a>
-          <a href="/about">About</a>
-          <a href="/contact">Contact</a>
+          <a href="/site/${siteId}/home">Home</a>
+          <a href="#">About</a>
+          <a href="#">Contact</a>
         </nav>
       </header>
 
       <main class="card">
-        <h2>Welcome</h2>
+        <h2>Site ID</h2>
+        <p><strong>${siteId}</strong></p>
+
         <p>
           We build high-performance websites, SEO strategies, and digital
           marketing systems for growing businesses.
@@ -53,7 +62,7 @@ app.get("/", (req, res) => {
   `);
 });
 
-// Health check (Render friendly)
+// Health check (Render)
 app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
