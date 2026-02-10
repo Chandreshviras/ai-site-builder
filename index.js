@@ -8,6 +8,8 @@ import { createClient } from "@supabase/supabase-js";
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static("public"));
+
 
 console.log("🔥 INDEX.JS LOADED");
 
@@ -122,8 +124,11 @@ app.get("/site/:id", async (req, res) => {
     const html = `
       <html>
         <head>
-          <title>${site.business_name}</title>
-        </head>
+        <meta charset="UTF-8" />
+        <title>${site.business_name}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="/styles.css" />
+      </head>
         <body>
           <h1>${site.business_name}</h1>
           <p>${site.business_description || ""}</p>
