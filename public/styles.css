@@ -1,11 +1,20 @@
+/* --------------------
+   BASE STYLES
+-------------------- */
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 header {
   padding: 40px;
   text-align: center;
+}
+
+nav {
+  margin-top: 20px;
 }
 
 nav a {
@@ -14,7 +23,17 @@ nav a {
   font-weight: 600;
 }
 
-.card {
+button {
+  margin-top: 20px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.card,
+.content {
   max-width: 900px;
   margin: 40px auto;
   padding: 30px;
@@ -27,40 +46,58 @@ footer {
   opacity: 0.7;
 }
 
-/* 🌙 DARK THEME */
-body.dark {
+/* --------------------
+   🌙 DARK THEME
+-------------------- */
+
+body[data-theme="dark"] {
   background: #0f172a;
   color: #e5e7eb;
 }
 
-body.dark header {
+body[data-theme="dark"] header {
   background: #020617;
 }
 
-body.dark .card {
+body[data-theme="dark"] .card,
+body[data-theme="dark"] .content {
   background: #020617;
   border: 1px solid #1e293b;
 }
 
-body.dark nav a {
+body[data-theme="dark"] nav a {
   color: #93c5fd;
 }
 
-/* ☀️ LIGHT THEME */
-body.light {
+body[data-theme="dark"] button {
+  background: #1e293b;
+  color: #e5e7eb;
+}
+
+/* --------------------
+   ☀️ LIGHT THEME
+-------------------- */
+
+body[data-theme="light"] {
   background: #f9fafb;
   color: #111827;
 }
 
-body.light header {
+body[data-theme="light"] header {
   background: #ffffff;
 }
 
-body.light .card {
+body[data-theme="light"] .card,
+body[data-theme="light"] .content {
   background: #ffffff;
   border: 1px solid #e5e7eb;
 }
 
-body.light nav a {
+body[data-theme="light"] nav a {
   color: #2563eb;
+}
+
+body[data-theme="light"] button {
+  background: #e5e7eb;
+  color: #111827;
 }
