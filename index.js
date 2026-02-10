@@ -2,38 +2,97 @@ import express from "express";
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
 
-// --------------------
-// APP SETUP
-// --------------------
+/* --------------------
+   APP SETUP
+-------------------- */
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-// --------------------
-// ENV CHECK (SAFE LOGS)
-// --------------------
+/* --------------------
+   ENV CHECK (SAFE LOGS)
+-------------------- */
 console.log("SUPABASE_URL exists:", !!process.env.SUPABASE_URL);
-console.log("SUPABASE_ANON_KEY exists:", !!process.env.SUPABASE_ANON_KEY);
+console.log("SUPABASE_SERVICE_KEY exists:", !!process.env.SUPABASE_SERVICE_KEY);
 
-// --------------------
-// SUPABASE CLIENT (FIXED)
-// --------------------
+/* --------------------
+   SUPABASE CLIENT
+-------------------- */
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
+  process.env.SUPABASE_SERVICE_KEY
 );
 
-// --------------------
-// HEALTH CHECK
-// --------------------
+/* --------------------
+   HEALTH CHECK
+-------------------- */
 app.get("/", (req, res) => {
   res.send("AI Site Builder running");
 });
 
-// --------------------
-// USER SITE RENDER (MULTI PAGE + THEME)
-// --------------------
+/* --------------------
+   SECTION RENDERER
+-------------------- */
+function renderSection(section) {
+  switch (section.type) {
+    case "hero":
+      return `
+        <section class="hero">
+          <h1>${section.heading}</h1>
+          <p>${section.subheading}</p>
+          <a href="#contact" class="cta">${section.cta}</a>
+        </section>
+      `;
+
+    case "services":
+      return `
+        <section class="services">
+          <h2>Our Services</h2>
+          <div class="service-grid">
+            ${section.items
+              .map(
+                s => `
+              <div class="service-card">
+                <h3>${s.title}</h3>
+                <p>${s.description}</p>
+              </div>
+            `
+              )
+              .join("")}
+          </div>
+        </section>
+      `;
+
+    case "about":
+      return `
+        <section class="about">
+          <h2>About Us</h2>
+          <p>${section.content}</p>
+        </section>
+      `;
+
+    case "contact":
+      return `
+        <section class="contact" id="contact">
+          <h2>Contact Us</h2>
+          <form>
+            <input type="text" placeholder="Your Name" required />
+            <input type="email" placeholder="Email Address" required />
+            <textarea placeholder="Tell us about your project"></textarea>
+            <button type="submit">Send Message</button>
+          </form>
+        </section>
+      `;
+
+    default:
+      return "";
+  }
+}
+
+/* --------------------
+   USER SITE RENDER
+-------------------- */
 app.get("/site/:id/:page?", async (req, res) => {
   try {
     const { id, page = "home" } = req.params;
@@ -50,7 +109,7 @@ app.get("/site/:id/:page?", async (req, res) => {
 
     const site = data.json;
 
-    // Pages map
+    /* Map pages */
     const pagesMap = {};
     site.pages.forEach(p => {
       pagesMap[p.title.toLowerCase()] = p.sections;
@@ -66,26 +125,23 @@ app.get("/site/:id/:page?", async (req, res) => {
 <head>
   <meta charset="UTF-8" />
   <title>${site.business_name}</title>
-  <link rel="stylesheet" href="/styles.css" />
-
+  <meta name="description" content="${site.business_description || ""}">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/style.css" />
   <script>
     function toggleTheme() {
-      const theme =
-        document.body.dataset.theme === "dark" ? "light" : "dark";
-      document.body.dataset.theme = theme;
-      localStorage.setItem("theme", theme);
+      const t = document.body.dataset.theme === "dark" ? "light" : "dark";
+      document.body.dataset.theme = t;
+      localStorage.setItem("theme", t);
     }
-
     window.onload = () => {
-      document.body.dataset.theme =
-        localStorage.getItem("theme") || "${site.theme || "light"}";
+      document.body.dataset.theme = localStorage.getItem("theme") || "light";
     };
   </script>
 </head>
 
-<body data-theme="${site.theme || "light"}">
-
-<header>
+<body data-theme="light">
+<header class="header">
   <h1>${site.business_name}</h1>
   <p>${site.business_description || ""}</p>
 
@@ -98,17 +154,13 @@ app.get("/site/:id/:page?", async (req, res) => {
   <button onclick="toggleTheme()">🌙 / ☀️</button>
 </header>
 
-<main class="content">
-  <h2>${page.toUpperCase()}</h2>
-  <ul>
-    ${pagesMap[page].map(s => `<li>${s}</li>`).join("")}
-  </ul>
+<main>
+  ${pagesMap[page].map(renderSection).join("")}
 </main>
 
-<footer>
+<footer class="footer">
   © ${new Date().getFullYear()} ${site.business_name}
 </footer>
-
 </body>
 </html>
     `);
@@ -118,9 +170,9 @@ app.get("/site/:id/:page?", async (req, res) => {
   }
 });
 
-// --------------------
-// SERVER START (RENDER SAFE)
-// --------------------
+/* --------------------
+   SERVER START
+-------------------- */
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log("Server running on port", PORT);
