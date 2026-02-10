@@ -5,67 +5,106 @@ import { fileURLToPath } from "url";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Fix __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ Serve static files (CSS must be here)
+// ✅ Serve CSS correctly
 app.use(express.static(path.join(__dirname, "public")));
 
-// Home (root)
+// Redirect root
 app.get("/", (req, res) => {
   res.redirect("/site/demo/home");
 });
 
-// ✅ Dynamic site home route (THIS fixes your error)
+// ✅ Homepage route
 app.get("/site/:siteId/home", (req, res) => {
-  const { siteId } = req.params;
-
   res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Eminent Website Solutions</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eminent Website Solutions | Web Design & Digital Marketing Agency</title>
 
-      <!-- IMPORTANT: absolute path -->
-      <link rel="stylesheet" href="/style.css" />
-    </head>
-    <body class="light">
-      <header>
-        <h1>Eminent Website Solutions</h1>
-        <p>Web design & digital marketing agency</p>
+  <!-- SEO -->
+  <meta name="description" content="Eminent Website Solutions is a Mumbai-based web design and digital marketing agency offering SEO, website development, branding, and performance marketing services." />
+  <meta name="keywords" content="web design agency Mumbai, SEO services, digital marketing agency India, website development company" />
 
-        <nav>
-          <a href="/site/${siteId}/home">Home</a>
-          <a href="#">About</a>
-          <a href="#">Contact</a>
-        </nav>
-      </header>
+  <!-- CSS -->
+  <link rel="stylesheet" href="/style.css" />
+</head>
 
-      <main class="card">
-        <h2>Site ID</h2>
-        <p><strong>${siteId}</strong></p>
+<body class="light">
 
-        <p>
-          We build high-performance websites, SEO strategies, and digital
-          marketing systems for growing businesses.
-        </p>
-      </main>
+<header class="header">
+  <h1>Eminent Website Solutions</h1>
+  <p>Web Design & Digital Marketing Agency</p>
 
-      <footer>
-        © 2026 Eminent Website Solutions
-      </footer>
-    </body>
-    </html>
+  <nav>
+    <a href="/site/demo/home">Home</a>
+    <a href="#">Services</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <h2>We Build High-Performance Websites That Grow Businesses</h2>
+  <p>
+    From conversion-focused website design to ROI-driven SEO and digital marketing,
+    we help brands dominate online.
+  </p>
+  <a class="btn" href="#">Get Free Consultation</a>
+</section>
+
+<section class="services">
+  <h2>Our Services</h2>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Website Design & Development</h3>
+      <p>Modern, fast, mobile-first websites built for conversions and scalability.</p>
+    </div>
+
+    <div class="card">
+      <h3>SEO & Organic Growth</h3>
+      <p>Data-driven SEO strategies to increase rankings, traffic, and revenue.</p>
+    </div>
+
+    <div class="card">
+      <h3>Digital Marketing</h3>
+      <p>Performance marketing, Google Ads, and social media growth campaigns.</p>
+    </div>
+
+    <div class="card">
+      <h3>E-commerce Solutions</h3>
+      <p>High-converting Shopify and custom e-commerce website development.</p>
+    </div>
+  </div>
+</section>
+
+<section class="contact">
+  <h2>Let’s Build Something Great</h2>
+
+  <form>
+    <input type="text" placeholder="Your Name" required />
+    <input type="email" placeholder="Your Email" required />
+    <textarea placeholder="Tell us about your project"></textarea>
+    <button type="submit">Send Enquiry</button>
+  </form>
+</section>
+
+<footer>
+  © 2026 Eminent Website Solutions. All Rights Reserved.
+</footer>
+
+</body>
+</html>
   `);
 });
 
-// Health check (Render)
-app.get("/health", (req, res) => {
-  res.status(200).send("OK");
-});
+// Health check
+app.get("/health", (_, res) => res.send("OK"));
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
