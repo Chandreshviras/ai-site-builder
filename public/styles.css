@@ -1,23 +1,18 @@
 /* --------------------
-   BASE STYLES
+   BASE
 -------------------- */
-
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Inter, Arial, sans-serif;
   transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* --------------------
-   HEADER & NAV
--------------------- */
-
 header {
-  padding: 40px;
+  padding: 60px 20px;
   text-align: center;
 }
 
@@ -26,79 +21,150 @@ nav {
 }
 
 nav a {
-  margin: 0 12px;
+  margin: 0 14px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+button {
+  margin-top: 24px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* --------------------
+   HERO
+-------------------- */
+.hero {
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 42px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.hero p {
+  max-width: 700px;
+  margin: 20px auto;
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+.cta {
+  display: inline-block;
+  margin-top: 30px;
+  padding: 14px 30px;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #fff;
   text-decoration: none;
   font-weight: 600;
 }
 
 /* --------------------
-   CONTENT / CARD
+   SERVICES
 -------------------- */
+.services {
+  padding: 60px 20px;
+}
 
-.card,
-.content {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 30px;
-  border-radius: 12px;
+.services h2 {
+  text-align: center;
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 40px;
+}
+
+.service-card {
+  padding: 26px;
+  border-radius: 16px;
+  transition: transform 0.2s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-6px);
 }
 
 /* --------------------
-   BUTTONS
+   ABOUT & CONTACT
 -------------------- */
+.about,
+.contact {
+  padding: 60px 20px;
+  max-width: 900px;
+  margin: auto;
+}
 
-button {
-  margin-top: 20px;
-  padding: 8px 14px;
-  border-radius: 6px;
+.contact form {
+  display: grid;
+  gap: 14px;
+}
+
+.contact input,
+.contact textarea {
+  padding: 14px;
+  border-radius: 10px;
   border: none;
-  cursor: pointer;
+}
+
+.contact button {
+  padding: 14px;
+  border-radius: 10px;
   font-weight: 600;
-  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* --------------------
    FOOTER
 -------------------- */
-
 footer {
   text-align: center;
-  padding: 20px;
+  padding: 30px;
   opacity: 0.7;
 }
 
-/* ====================
+/* --------------------
    🌙 DARK THEME
-==================== */
-
+-------------------- */
 body[data-theme="dark"] {
-  background: #0f172a;
+  background: #020617;
   color: #e5e7eb;
 }
 
 body[data-theme="dark"] header {
-  background: #020617;
-}
-
-body[data-theme="dark"] .card,
-body[data-theme="dark"] .content {
-  background: #020617;
-  border: 1px solid #1e293b;
+  background: linear-gradient(180deg, #020617, #02061700);
 }
 
 body[data-theme="dark"] nav a {
   color: #93c5fd;
 }
 
-body[data-theme="dark"] button {
-  background: #1e293b;
-  color: #e5e7eb;
+body[data-theme="dark"] .service-card,
+body[data-theme="dark"] .about,
+body[data-theme="dark"] .contact {
+  background: #020617;
+  border: 1px solid #1e293b;
 }
 
-/* ====================
-   ☀️ LIGHT THEME
-==================== */
+body[data-theme="dark"] input,
+body[data-theme="dark"] textarea {
+  background: #020617;
+  color: #e5e7eb;
+  border: 1px solid #1e293b;
+}
 
+/* --------------------
+   ☀️ LIGHT THEME
+-------------------- */
 body[data-theme="light"] {
   background: #f9fafb;
   color: #111827;
@@ -108,17 +174,19 @@ body[data-theme="light"] header {
   background: #ffffff;
 }
 
-body[data-theme="light"] .card,
-body[data-theme="light"] .content {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-}
-
 body[data-theme="light"] nav a {
   color: #2563eb;
 }
 
-body[data-theme="light"] button {
-  background: #e5e7eb;
-  color: #111827;
+body[data-theme="light"] .service-card,
+body[data-theme="light"] .about,
+body[data-theme="light"] .contact {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+body[data-theme="light"] input,
+body[data-theme="light"] textarea {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
 }
