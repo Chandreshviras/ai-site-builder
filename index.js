@@ -1,160 +1,71 @@
 import express from "express";
-import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
 
-// --------------------
-// APP SETUP
-// --------------------
 const app = express();
-app.use(cors());
-app.use(express.json());
-app.use(express.static("public"));
 
-
-console.log("🔥 INDEX.JS LOADED");
-
-// --------------------
-// ENV VARIABLES
-// --------------------
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
-
-// --------------------
-// SUPABASE CLIENT
-// --------------------
 const supabase = createClient(
-  SUPABASE_URL,
-  SUPABASE_SERVICE_KEY
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
 );
 
-// --------------------
-// ROUTES
-// --------------------
+app.use(express.static("public"));
 
-// Root
-app.get("/", (req, res) => {
-  res.send("AI Backend is running");
-});
+app.get("/site/:id/:page?", async (req, res) => {
+  const { id, page = "home" } = req.params;
 
-// Health
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
-});
+  const { data, error } = await supabase
+    .from("sites")
+    .select("json")
+    .eq("id", id)
+    .single();
 
-// --------------------
-// GENERATE SITE
-// --------------------
-app.post("/generate-site", async (req, res) => {
-  try {
-    const {
-      customer_id,
-      business_name,
-      business_description,
-      industry,
-      location
-    } = req.body;
-
-    if (!customer_id || !business_name) {
-      return res.status(400).json({
-        error: "customer_id and business_name are required"
-      });
-    }
-
-    const site_config = {
-      business_name,
-      business_description,
-      industry,
-      location,
-      pages: [
-        { title: "Home", sections: ["Hero", "Services", "CTA"] },
-        { title: "About", sections: ["Company Info", "Mission"] },
-        { title: "Contact", sections: ["Form", "Map"] }
-      ]
-    };
-
-    const { data, error } = await supabase
-      .from("sites")
-      .insert([
-        {
-          customer_id,
-          name: business_name,
-          json: site_config,
-          status: "live"
-        }
-      ])
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Supabase insert error:", error);
-      return res.status(500).json({ error: "Failed to save site" });
-    }
-
-    res.json({
-      success: true,
-      site_id: data.id,
-      message: "Site generated successfully"
-    });
-  } catch (err) {
-    console.error("Generate site error:", err);
-    res.status(500).json({ error: "Server error" });
+  if (error || !data) {
+    return res.status(404).send("Site not found");
   }
-});
 
-// --------------------
-// SITE RENDERER (🔥 THIS WAS MISSING)
-// --------------------
-app.get("/site/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
+  const site = data.json;
+  const content = site.pages[page];
 
-    const { data, error } = await supabase
-      .from("sites")
-      .select("name, json")
-      .eq("id", id)
-      .single();
-
-    if (error || !data) {
-      return res.status(404).send("Site not found");
-    }
-
-    const site = data.json;
-
-    // Simple HTML render (basic for now)
-    const html = `
-      <html>
-        <head>
-        <meta charset="UTF-8" />
-        <title>${site.business_name}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="/styles.css" />
-      </head>
-        <body>
-          <h1>${site.business_name}</h1>
-          <p>${site.business_description || ""}</p>
-
-          <h2>Pages</h2>
-          <ul>
-            ${site.pages
-              .map(page => `<li>${page.title}</li>`)
-              .join("")}
-          </ul>
-        </body>
-      </html>
-    `;
-
-    res.send(html);
-  } catch (err) {
-    console.error("Site render error:", err);
-    res.status(500).send("Server error");
+  if (!content) {
+    return res.status(404).send("Page not found");
   }
+
+  res.send(`
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${site.business_name}</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="${site.theme}">
+
+<header>
+  <h1>${site.business_name}</h1>
+  <p>${site.business_description}</p>
+
+  <nav>
+    <a href="/site/${id}">Home</a>
+    <a href="/site/${id}/about">About</a>
+    <a href="/site/${id}/services">Services</a>
+    <a href="/site/${id}/contact">Contact</a>
+  </nav>
+</header>
+
+<main class="card">
+  <h2>${page.toUpperCase()}</h2>
+  <p>${content}</p>
+</main>
+
+<footer>
+  © ${new Date().getFullYear()} ${site.business_name}
+</footer>
+
+</body>
+</html>
+  `);
 });
 
-// --------------------
-// SERVER START (MUST BE LAST)
-// --------------------
-const PORT = process.env.PORT || 10000;
-
-app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
 });
