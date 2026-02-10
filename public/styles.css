@@ -2,11 +2,19 @@
    BASE STYLES
 -------------------- */
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   transition: background 0.3s ease, color 0.3s ease;
 }
+
+/* --------------------
+   HEADER & NAV
+-------------------- */
 
 header {
   padding: 40px;
@@ -23,14 +31,9 @@ nav a {
   font-weight: 600;
 }
 
-button {
-  margin-top: 20px;
-  padding: 8px 14px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-}
+/* --------------------
+   CONTENT / CARD
+-------------------- */
 
 .card,
 .content {
@@ -40,15 +43,33 @@ button {
   border-radius: 12px;
 }
 
+/* --------------------
+   BUTTONS
+-------------------- */
+
+button {
+  margin-top: 20px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* --------------------
+   FOOTER
+-------------------- */
+
 footer {
   text-align: center;
   padding: 20px;
   opacity: 0.7;
 }
 
-/* --------------------
+/* ====================
    🌙 DARK THEME
--------------------- */
+==================== */
 
 body[data-theme="dark"] {
   background: #0f172a;
@@ -74,9 +95,9 @@ body[data-theme="dark"] button {
   color: #e5e7eb;
 }
 
-/* --------------------
+/* ====================
    ☀️ LIGHT THEME
--------------------- */
+==================== */
 
 body[data-theme="light"] {
   background: #f9fafb;
