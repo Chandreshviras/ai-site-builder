@@ -9,6 +9,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+console.log("🔥 INDEX.JS LOADED");
+
 // --------------------
 // ENV VARIABLES
 // --------------------
@@ -18,23 +20,28 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 // --------------------
 // SUPABASE CLIENT
 // --------------------
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+const supabase = createClient(
+  SUPABASE_URL,
+  SUPABASE_SERVICE_KEY
+);
 
 // --------------------
 // ROUTES
 // --------------------
 
-// Root check
+// Root
 app.get("/", (req, res) => {
   res.send("AI Backend is running");
 });
 
-// Health check
+// Health
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// Generate site API
+// --------------------
+// GENERATE SITE
+// --------------------
 app.post("/generate-site", async (req, res) => {
   try {
     const {
@@ -51,7 +58,6 @@ app.post("/generate-site", async (req, res) => {
       });
     }
 
-    // MOCK AI SITE CONFIG (we’ll replace with OpenAI later)
     const site_config = {
       business_name,
       business_description,
@@ -64,14 +70,13 @@ app.post("/generate-site", async (req, res) => {
       ]
     };
 
-    // INSERT INTO SUPABASE (CORRECT COLUMN: json)
     const { data, error } = await supabase
       .from("sites")
       .insert([
         {
           customer_id,
           name: business_name,
-          json: site_config, // ✅ CORRECT
+          json: site_config,
           status: "live"
         }
       ])
@@ -95,7 +100,53 @@ app.post("/generate-site", async (req, res) => {
 });
 
 // --------------------
-// SERVER START
+// SITE RENDERER (🔥 THIS WAS MISSING)
+// --------------------
+app.get("/site/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data, error } = await supabase
+      .from("sites")
+      .select("name, json")
+      .eq("id", id)
+      .single();
+
+    if (error || !data) {
+      return res.status(404).send("Site not found");
+    }
+
+    const site = data.json;
+
+    // Simple HTML render (basic for now)
+    const html = `
+      <html>
+        <head>
+          <title>${site.business_name}</title>
+        </head>
+        <body>
+          <h1>${site.business_name}</h1>
+          <p>${site.business_description || ""}</p>
+
+          <h2>Pages</h2>
+          <ul>
+            ${site.pages
+              .map(page => `<li>${page.title}</li>`)
+              .join("")}
+          </ul>
+        </body>
+      </html>
+    `;
+
+    res.send(html);
+  } catch (err) {
+    console.error("Site render error:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+// --------------------
+// SERVER START (MUST BE LAST)
 // --------------------
 const PORT = process.env.PORT || 10000;
 
