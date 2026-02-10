@@ -31,7 +31,7 @@ app.get("/site/:siteId/home", (req, res) => {
   <meta name="keywords" content="web design agency Mumbai, SEO services, digital marketing agency India, website development company" />
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="public/style.css" />
 </head>
 
 <body class="light">
