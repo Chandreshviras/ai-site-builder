@@ -11,21 +11,21 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // --------------------
-// ENV CHECK (SAFE)
+// ENV CHECK (SAFE LOGS)
 // --------------------
 console.log("SUPABASE_URL exists:", !!process.env.SUPABASE_URL);
-console.log("SUPABASE_SERVICE_KEY exists:", !!process.env.SUPABASE_SERVICE_KEY);
+console.log("SUPABASE_ANON_KEY exists:", !!process.env.SUPABASE_ANON_KEY);
 
 // --------------------
-// SUPABASE CLIENT
+// SUPABASE CLIENT (FIXED)
 // --------------------
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
+  process.env.SUPABASE_ANON_KEY
 );
 
 // --------------------
-// HEALTH
+// HEALTH CHECK
 // --------------------
 app.get("/", (req, res) => {
   res.send("AI Site Builder running");
@@ -40,7 +40,7 @@ app.get("/site/:id/:page?", async (req, res) => {
 
     const { data, error } = await supabase
       .from("sites")
-      .select("json, name")
+      .select("json")
       .eq("id", id)
       .single();
 
@@ -50,7 +50,7 @@ app.get("/site/:id/:page?", async (req, res) => {
 
     const site = data.json;
 
-    // Convert pages array → object
+    // Pages map
     const pagesMap = {};
     site.pages.forEach(p => {
       pagesMap[p.title.toLowerCase()] = p.sections;
@@ -66,22 +66,26 @@ app.get("/site/:id/:page?", async (req, res) => {
 <head>
   <meta charset="UTF-8" />
   <title>${site.business_name}</title>
-  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/styles.css" />
+
   <script>
     function toggleTheme() {
-      const t = document.body.dataset.theme === "dark" ? "light" : "dark";
-      document.body.dataset.theme = t;
-      localStorage.setItem("theme", t);
+      const theme =
+        document.body.dataset.theme === "dark" ? "light" : "dark";
+      document.body.dataset.theme = theme;
+      localStorage.setItem("theme", theme);
     }
 
     window.onload = () => {
-      document.body.dataset.theme = localStorage.getItem("theme") || "light";
+      document.body.dataset.theme =
+        localStorage.getItem("theme") || "${site.theme || "light"}";
     };
   </script>
 </head>
 
-<body>
-<header class="header">
+<body data-theme="${site.theme || "light"}">
+
+<header>
   <h1>${site.business_name}</h1>
   <p>${site.business_description || ""}</p>
 
@@ -101,9 +105,10 @@ app.get("/site/:id/:page?", async (req, res) => {
   </ul>
 </main>
 
-<footer class="footer">
+<footer>
   © ${new Date().getFullYear()} ${site.business_name}
 </footer>
+
 </body>
 </html>
     `);
