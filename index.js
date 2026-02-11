@@ -9,7 +9,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ✅ Serve CSS correctly
-app.use(express.static(path.join(__dirname, "public")));
+app.use("/",
+  express.static(path.resolve("public"), {
+    extensions: ["css", "js", "png", "jpg", "jpeg", "gif", "svg"]
+  })
+);
+
 
 // Redirect root
 app.get("/", (req, res) => {
