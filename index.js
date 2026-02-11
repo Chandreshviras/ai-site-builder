@@ -48,14 +48,19 @@ app.get("/site/:siteId/home", (req, res) => {
   </nav>
 </header>
 
-<section class="hero">
-  <h2>We Build High-Performance Websites That Grow Businesses</h2>
-  <p>
-    From conversion-focused website design to ROI-driven SEO and digital marketing,
-    we help brands dominate online.
-  </p>
-  <a class="btn" href="#">Get Free Consultation</a>
+<section class="hero container">
+  <div class="hero-text">
+    <h2>Build Stunning Websites for Your Business</h2>
+    <p>
+      Premium web design & digital marketing solutions for businesses
+      looking to dominate online presence.
+    </p>
+    <a href="#" class="btn-primary">Generate My Site</a>
+  </div>
+
+  <img src="https://images.unsplash.com/photo-1559028012-481c04fa702d?auto=format&fit=crop&w=900&q=80" />
 </section>
+
 
 <section class="services">
   <h2>Our Services</h2>
