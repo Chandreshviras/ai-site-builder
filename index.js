@@ -5,23 +5,19 @@ import { fileURLToPath } from "url";
 const app = express();
 const PORT = process.env.PORT || 10000;
 
+// Fix for __dirname in ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ Serve CSS correctly
-app.use("/",
-  express.static(path.join(__dirname, "public")), {
-    extensions: ["css", "js", "png", "jpg", "jpeg", "gif", "svg"]
-  })
-);
+// ✅ Production-Ready Static Setup
+app.use(express.static(path.join(__dirname, "public")));
 
-
-// Redirect root
+// Redirect root to demo site
 app.get("/", (req, res) => {
   res.redirect("/site/demo/home");
 });
 
-// ✅ Homepage route
+// Homepage Route
 app.get("/site/:siteId/home", (req, res) => {
   res.send(`
 <!DOCTYPE html>
@@ -31,12 +27,10 @@ app.get("/site/:siteId/home", (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Eminent Website Solutions | Web Design & Digital Marketing Agency</title>
 
-  <!-- SEO -->
   <meta name="description" content="Eminent Website Solutions is a Mumbai-based web design and digital marketing agency offering SEO, website development, branding, and performance marketing services." />
   <meta name="keywords" content="web design agency Mumbai, SEO services, digital marketing agency India, website development company" />
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles.css" />
 </head>
 
 <body class="light">
@@ -63,9 +57,11 @@ app.get("/site/:siteId/home", (req, res) => {
     <a href="#" class="btn-primary">Generate My Site</a>
   </div>
 
-  <img src="https://images.unsplash.com/photo-1559028012-481c04fa702d?auto=format&fit=crop&w=900&q=80" />
+  <img 
+    src="https://images.unsplash.com/photo-1559028012-481c04fa702d?auto=format&fit=crop&w=900&q=80" 
+    alt="Website Development" 
+  />
 </section>
-
 
 <section class="services">
   <h2>Our Services</h2>
@@ -113,7 +109,7 @@ app.get("/site/:siteId/home", (req, res) => {
   `);
 });
 
-// Health check
+// Health check (important for Render)
 app.get("/health", (_, res) => res.send("OK"));
 
 app.listen(PORT, () => {
