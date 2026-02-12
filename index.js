@@ -826,6 +826,15 @@ app.post("/api/generate", (req, res) => {
 // /preview/:jobId/home -> loads generated-sites/:jobId/home.html
 // and styles.css
 // --------------------
+app.get("/site/:id", (req, res) => {
+  res.redirect(`/site/${req.params.id}/home`);
+});
+
+app.get("/site/:id/", (req, res) => {
+  res.redirect(`/site/${req.params.id}/home`);
+});
+
+
 app.get("/preview/:jobId/:page?", (req, res) => {
   const { jobId, page = "home" } = req.params;
   const siteDir = path.join(__dirname, "generated-sites", jobId);
